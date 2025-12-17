@@ -18,8 +18,10 @@ ype.pdf.mime,
 The MimeType has some predefined file types and its extension
 
 ## Android Setup
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
 
 ## Note
     * For android file will be stored in download folder
@@ -29,3 +31,6 @@ The MimeType has some predefined file types and its extension
     permission_handler
     path_provider
     device_info_plus
+
+## Support
+    For any quries or issues or suggestions 5061code@gmail.com 
