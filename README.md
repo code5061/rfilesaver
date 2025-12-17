@@ -29,4 +29,3 @@ The MimeType has some predefined file types and its extension
     permission_handler
     path_provider
     device_info_plus
-
