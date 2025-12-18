@@ -1,6 +1,6 @@
 # rfilesaver
 
-Plugin to save file in ANDROID or IOS device
+A Flutter Plugin to save file in ANDROID or IOS device
 
 ## Getting Started
 
