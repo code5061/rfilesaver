@@ -31,8 +31,7 @@ String? path = await Rfilesaver.saveFile(
         data: data,
         fileName: 'rfilesaver_sample',
         extension: MimeType.pdf.extension,
-        mimeType: MimeTgit push -u origin main --force
-ype.pdf.mime,
+        mimeType: MimeType.pdf.mime,
       );
 ```
 The MimeType has some predefined file types and its extension
