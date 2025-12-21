@@ -29,9 +29,10 @@ class Rfilesaver {
         if (!(await _checkStoragePermission())) {
           return Future.error('Permission not granted.');
         }
+        String fileNameWithExtension = '$fileName.$extension';
         String? path = await _methodChannel.invokeMethod(_chnlSvFile, {
           'data': data,
-          'fileName': '$fileName.$extension',
+          'fileName': fileNameWithExtension,
           'mimeType': mimeType,
         });
         return path;

@@ -32,6 +32,11 @@ class _RfilesaverExViewState extends State<RfilesaverExView> {
             onPressed: createPdf,
             child: Text('Save Sample File'),
           ),
+          MaterialButton(
+            minWidth: size.width * 0.5,
+            onPressed:()=> createPdf('rfilesaver/rfilesaver_sample'),
+            child: Text('Save File In Sub-Folder'),
+          ),
           Center(
             child: ValueListenableBuilder(
               valueListenable: notifier,
@@ -45,7 +50,7 @@ class _RfilesaverExViewState extends State<RfilesaverExView> {
     );
   }
 
-  void createPdf() async {
+  void createPdf([String fileName='rfilesaver_sample']) async {
     try {
       notifier.value = 'Creating pdf';
 
@@ -55,7 +60,7 @@ class _RfilesaverExViewState extends State<RfilesaverExView> {
 
       String? path = await Rfilesaver.saveFile(
         data: data,
-        fileName: 'rfilesaver_sample',
+        fileName:fileName,
         extension: MimeType.pdf.extension,
         mimeType: MimeType.pdf.mime,
       );
@@ -74,6 +79,8 @@ class _RfilesaverExViewState extends State<RfilesaverExView> {
       }
 
       showSnackBar(context, msg, action: action);
+
+      notifier.value = 'Pdf file saved in downloads';
     } catch (e) {
       showSnackBar(context, e.toString());
     }

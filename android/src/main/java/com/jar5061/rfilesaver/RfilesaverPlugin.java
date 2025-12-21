@@ -83,7 +83,22 @@ public class RfilesaverPlugin implements FlutterPlugin, MethodCallHandler {
         return null;
       }
 
-      savedPath = uri.toString();
+      Cursor cursor = resolver.query(uri,
+    new String[] {
+        MediaStore.MediaColumns.DISPLAY_NAME,
+        MediaStore.MediaColumns.RELATIVE_PATH
+    },
+    null, null, null);
+
+if (cursor != null && cursor.moveToFirst()) {
+    String name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME));
+    String relPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH));
+    savedPath= relPath + name;
+    cursor.close();
+}
+
+
+      // savedPath = uri.toString();
 
     } else {
 
