@@ -26,7 +26,7 @@ The MimeType has some predefined file types and its extension
     * For android file will be stored in download folder
     * In Ios file will be stores in application documents directory
 
-## Used Dependencies
+## Dependencies Used
     permission_handler
     path_provider
     device_info_plus
