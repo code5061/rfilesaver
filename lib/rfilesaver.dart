@@ -47,9 +47,9 @@ class Rfilesaver {
       throw UnimplementedError(
         'R File Saver is not availale for this platform ',
       );
-    } catch (e, s) {
+    } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrintStack(stackTrace: s, label: e.toString());
+        debugPrintStack(stackTrace: stackTrace, label: e.toString());
       }
       return Future.error('Unable to save file');
     }
