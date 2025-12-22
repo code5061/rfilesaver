@@ -9,3 +9,7 @@
 ## 0.0.3
 
 * Added support for saving files on Android 9 and below.
+
+## 0.0.4
+
+* Added support for saving files on Android 9 and below.
