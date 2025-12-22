@@ -42,4 +42,4 @@ SavedDetails savedDetails = await Rfilesaver.saveFile(
     device_info_plus
 
 ## Support
-    We’d love to hear from you! Drop us a line at 5061code@gmail.com for any queries, issues, or suggestions
+    We’d love to hear from you! Drop us a line at [**5061code@gmail.com**](mailto:5061code@gmail.com) for any queries, issues, or suggestions
