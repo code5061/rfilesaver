@@ -1,8 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:rfilesaver/enum/mime_type.dart';
+import 'package:rfilesaver/model/saved_details.dart';
 import 'package:rfilesaver/rfilesaver.dart';
 import 'package:rfilesaver_example/pdf/sample_pdf.dart';
 import 'package:rfilesaver_example/ui_utils/ui_utils.dart';
@@ -34,7 +37,7 @@ class _RfilesaverExViewState extends State<RfilesaverExView> {
           ),
           MaterialButton(
             minWidth: size.width * 0.5,
-            onPressed:()=> createPdf('rfilesaver/rfilesaver_sample'),
+            onPressed: () => createPdf('rfilesaver_sample/pdf'),
             child: Text('Save File In Sub-Folder'),
           ),
           Center(
@@ -50,7 +53,7 @@ class _RfilesaverExViewState extends State<RfilesaverExView> {
     );
   }
 
-  void createPdf([String fileName='rfilesaver_sample']) async {
+  void createPdf([String? pathToSave]) async {
     try {
       notifier.value = 'Creating pdf';
 
@@ -58,20 +61,21 @@ class _RfilesaverExViewState extends State<RfilesaverExView> {
 
       notifier.value = 'Saving pdf file';
 
-      String? path = await Rfilesaver.saveFile(
+      SavedDetails savedDetails = await Rfilesaver.saveFile(
         data: data,
-        fileName:fileName,
+        fileName: "rfilesaver_sample",
         extension: MimeType.pdf.extension,
         mimeType: MimeType.pdf.mime,
+        pathToSave: pathToSave,
       );
 
       SnackBarAction? action;
       String msg = 'PDF File Created';
-      if ((path ?? "").trim().isNotEmpty) {
+      if ((savedDetails.savedPath ?? '').trim().isNotEmpty) {
         action = SnackBarAction(
           label: 'Open',
           onPressed: () {
-            OpenFilex.open(path!);
+            OpenFilex.open(savedDetails.savedPath!);
           },
         );
       } else {

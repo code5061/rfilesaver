@@ -10,6 +10,9 @@ import android.provider.MediaStore;
 import androidx.annotation.NonNull;
 import java.io.IOException;
 import java.io.OutputStream;
+// import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.io.FileOutputStream;
 import android.os.Build;
 import androidx.annotation.NonNull;
@@ -40,7 +43,10 @@ public class RfilesaverPlugin implements FlutterPlugin, MethodCallHandler {
       byte[] data = call.argument("data");
       String fileName = call.argument("fileName");
       String mimeType = call.argument("mimeType");
-      String path = saveFileToDownloads(data, fileName, mimeType, flutterPluginBinding.getApplicationContext());
+      String pathToSave = call.argument("pathToSave");
+      Map<String, String> path = saveFileToDownloads(data, fileName, mimeType,
+          flutterPluginBinding.getApplicationContext(),
+          pathToSave);
 
       if (path != null) {
         result.success(path); // return the saved path
@@ -57,9 +63,10 @@ public class RfilesaverPlugin implements FlutterPlugin, MethodCallHandler {
     channel.setMethodCallHandler(null);
   }
 
-  private String saveFileToDownloads(byte[] data, String fileName, String mimeType, Context context) {
+  private Map<String, String> saveFileToDownloads(byte[] data, String fileName, String mimeType, Context context,
+      String pathToSave) {
 
-    String savedPath = null;
+    String savedPath = null, contentUri = null;
 
     ContentResolver resolver = context.getContentResolver();
     ContentValues values = new ContentValues();
@@ -68,7 +75,12 @@ public class RfilesaverPlugin implements FlutterPlugin, MethodCallHandler {
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 
-      values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+      String downloadPath = Environment.DIRECTORY_DOWNLOADS;
+      if (null != pathToSave && !pathToSave.trim().isBlank()) {
+        downloadPath = downloadPath + "/" + pathToSave + "/";
+      }
+
+      values.put(MediaStore.MediaColumns.RELATIVE_PATH, downloadPath);
       Uri uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
 
       if (uri == null) {
@@ -83,28 +95,33 @@ public class RfilesaverPlugin implements FlutterPlugin, MethodCallHandler {
         return null;
       }
 
+      contentUri = uri.toString();
+
       Cursor cursor = resolver.query(uri,
-    new String[] {
-        MediaStore.MediaColumns.DISPLAY_NAME,
-        MediaStore.MediaColumns.RELATIVE_PATH
-    },
-    null, null, null);
+          new String[] {
+              MediaStore.MediaColumns.DISPLAY_NAME,
+              MediaStore.MediaColumns.RELATIVE_PATH
+          },
+          null, null, null);
 
-if (cursor != null && cursor.moveToFirst()) {
-    String name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME));
-    String relPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH));
-    savedPath= relPath + name;
-    cursor.close();
-}
+      if (cursor != null && cursor.moveToFirst()) {
+        String name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME));
+        String relPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH));
 
+        savedPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + relPath + name;
 
-      // savedPath = uri.toString();
+        cursor.close();
+      }
 
     } else {
 
       File downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
       if (!downloads.exists()) {
         downloads.mkdirs();
+      }
+
+      if (null != pathToSave && !pathToSave.trim().isBlank()) {
+        fileName = "/" + pathToSave + "/"+fileName;
       }
 
       File file = new File(downloads, fileName);
@@ -122,19 +139,35 @@ if (cursor != null && cursor.moveToFirst()) {
         return null;
       }
 
-      Cursor cursor = resolver.query(Uri.fromFile(file), new String[] { MediaStore.MediaColumns.DATA }, null, null,
-          null);
+      values.put(MediaStore.MediaColumns.DATA, file.getAbsolutePath()); // absolute path
+      values.put(MediaStore.MediaColumns.DISPLAY_NAME,
+          file.getName());
+      values.put(MediaStore.MediaColumns.MIME_TYPE,
+          mimeType);
 
-      if (cursor != null) {
-        if (cursor.moveToFirst()) {
-          int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-          savedPath = cursor.getString(columnIndex);
+      Uri cUri = resolver.insert(MediaStore.Files.getContentUri("external"),
+          values);
+
+      if(null!=cUri){
+        Cursor cursor = resolver.query(cUri, new String[] { MediaStore.MediaColumns.DATA }, null, null,
+                null);
+
+        if (cursor != null) {
+          if (cursor.moveToFirst()) {
+            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+            savedPath = cursor.getString(columnIndex);
+          }
+          cursor.close();
         }
-        cursor.close();
       }
-    }
 
-    return savedPath;
+      contentUri = cUri.toString();
+
+    }
+    Map<String, String> map = new HashMap<>();
+    map.put("savedPath", savedPath);
+    map.put("contentUri", contentUri);
+    return map;
   }
 
 }

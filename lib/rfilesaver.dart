@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rfilesaver/enum/mime_type.dart';
+import 'package:rfilesaver/model/saved_details.dart';
 
 class Rfilesaver {
   static final MethodChannel _methodChannel = const MethodChannel('rfilesaver');
@@ -18,11 +19,15 @@ class Rfilesaver {
   ///[mimeType] mimeType of your file. [MimeType.jpeg.mime]
   ///[extension] ex: .pdf .jpg
   /// you can take this from enum [MimeType.jpeg.extension]
-  static Future<String?> saveFile({
+  ///
+  /// [pathToSave] should be, ex: 'rfilesaver/receipts'
+  /// don't add / (slash) at start and end.
+  static Future<SavedDetails> saveFile({
     required Uint8List data,
     required String fileName,
     required String extension,
     required String mimeType,
+    String? pathToSave,
   }) async {
     try {
       if (Platform.isAndroid) {
@@ -30,19 +35,31 @@ class Rfilesaver {
           return Future.error('Permission not granted.');
         }
         String fileNameWithExtension = '$fileName.$extension';
-        String? path = await _methodChannel.invokeMethod(_chnlSvFile, {
+
+        var path = await _methodChannel.invokeMethod(_chnlSvFile, {
           'data': data,
           'fileName': fileNameWithExtension,
           'mimeType': mimeType,
+          'pathToSave': pathToSave,
         });
-        return path;
+
+        SavedDetails sd = SavedDetails();
+        sd.contentUri = path['contentUri'];
+        sd.savedPath = path['savedPath'];
+        return sd;
       }
       if (Platform.isIOS) {
         final directory = await getApplicationDocumentsDirectory();
-        final filePath = '${directory.path}/$fileName.$extension';
+        final filePath =
+            '${directory.path}${(pathToSave ?? "").trim().isNotEmpty ? '/$pathToSave' : ''}/$fileName.$extension';
         final file = File(filePath);
+        if (!(await file.exists())) {
+          await file.create(recursive: true);
+        }
         await file.writeAsBytes(data);
-        return filePath;
+        SavedDetails sd = SavedDetails();
+        sd.savedPath = filePath;
+        return sd;
       }
       throw UnimplementedError(
         'R File Saver is not availale for this platform ',

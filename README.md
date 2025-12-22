@@ -7,14 +7,24 @@ A Flutter Plugin to save file in ANDROID or IOS device
 ## Minimal Sample
 
 ```dart
-String? path = await Rfilesaver.saveFile(
+SavedDetails savedDetails = await Rfilesaver.saveFile(
         data: data,
-        fileName: 'rfilesaver_sample',
+        fileName: "rfilesaver_sample",
         extension: MimeType.pdf.extension,
         mimeType: MimeType.pdf.mime,
+        pathToSave: pathToSave,
       );
 ```
-The MimeType has some predefined file types and its extension
+   * The MimeType has some predefined file types and its extension
+    
+   * savedDetails holds 
+        String? savedPath,
+        String? contentUri,
+    
+   * On Android, both `savedPath` and `contentUri` may be returned.
+
+   * On iOS, only `savedPath` is returned. The file is stored in the application's documents directory at the given path.
+
 
 ## Android Setup
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
