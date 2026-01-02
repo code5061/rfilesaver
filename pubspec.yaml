@@ -2,6 +2,7 @@ name: rfilesaver
 description: "A Flutter Plugin to save file in android or ios device"
 version: 0.0.4
 homepage: https://github.com/code5061/rfilesaver.git
+license: MIT
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
